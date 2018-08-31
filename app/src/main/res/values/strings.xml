@@ -1,0 +1,19 @@
+<resources>
+
+    <string name="app_name">Popular Movies</string>
+    <string name="api_key">{{ INSERT API KEY HERE }}</string>
+
+    <string name="refresh">Refresh</string>
+    <string name="query_by_popularity">Query By Popularity</string>
+    <string name="query_by_vote_avg">Query By Score</string>
+
+    <string name="movie_poster_image_content_description">Movie Poster</string>
+
+    <string name="detail_label_title">Title</string>
+    <string name="detail_label_release_date">Release Date</string>
+    <string name="detail_label_plot_synopsis">Plot Synopsis</string>
+    <string name="detail_label_vote_avg">Vote Average</string>
+
+    <string name="detail_error_message">Movie data not available</string>
+
+</resources>
