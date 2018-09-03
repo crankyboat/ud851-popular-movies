@@ -12,7 +12,7 @@ import java.util.List;
 public class JsonUtils {
 
     private static final String TAG = JsonUtils.class.getSimpleName();
-    private static final int maxNumberOfMoviesToParse = 100;
+    private static final int MAX_NUM_OF_MOVIES_TO_PARSE = 100;
 
     private static final String PAGE_RESULTS = "results";
     private static final String MOVIE_TITLE = "original_title";
@@ -28,7 +28,7 @@ public class JsonUtils {
         List<Movie> movies = new ArrayList<Movie>();
 
         JSONArray pageJsonArray = new JSONObject(json).getJSONArray(PAGE_RESULTS);
-        int pageLength = Math.min(maxNumberOfMoviesToParse, pageJsonArray.length());
+        int pageLength = Math.min(MAX_NUM_OF_MOVIES_TO_PARSE, pageJsonArray.length());
         for (int i = 0; i < pageLength; i++) {
             JSONObject movieJson = pageJsonArray.getJSONObject(i);
 
@@ -47,4 +47,5 @@ public class JsonUtils {
 
         return movies;
     }
+
 }

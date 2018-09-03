@@ -1,8 +1,9 @@
 package com.udacity.popularmovies;
 
+import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -13,6 +14,13 @@ import com.udacity.popularmovies.model.Movie;
 public class DetailActivity extends AppCompatActivity {
 
     private static final String TAG = DetailActivity.class.getSimpleName();
+    private static final String EXTRA_MOVIE = "com.udacity.popularmovies.extras.EXTRA_MOVIE";
+
+    public static Intent getStartIntent(Context context, Movie movie) {
+        Intent intent = new Intent(context, DetailActivity.class);
+        intent.putExtra(EXTRA_MOVIE, movie);
+        return intent;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,8 +29,8 @@ public class DetailActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         Movie movie = null;
-        if (intent != null && intent.hasExtra(Movie.class.getSimpleName())) {
-            movie = (Movie) intent.getSerializableExtra(Movie.class.getSimpleName());
+        if (intent != null && intent.hasExtra(EXTRA_MOVIE)) {
+            movie = (Movie) intent.getSerializableExtra(EXTRA_MOVIE);
         } else {
             closeOnError();
         }
@@ -56,7 +64,7 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void closeOnError() {
-        Toast.makeText(this, R.string.detail_error_message, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.error_detail, Toast.LENGTH_LONG).show();
         finish();
     }
 

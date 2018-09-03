@@ -16,16 +16,12 @@ public class PosterAdapter extends RecyclerView.Adapter<PosterAdapter.PosterView
 
     private static final String TAG = PosterAdapter.class.getSimpleName();
 
-    private List<Movie> movies;
-    private ItemViewOnClickListener itemViewOnClickListener;
-
-    public interface ItemViewOnClickListener {
-        void onItemViewClick(int position);
-    }
+    private List<Movie> mMovies;
+    private ItemViewOnClickListener mItemViewOnClickListener;
 
     public PosterAdapter(List<Movie> movies, ItemViewOnClickListener listener) {
-        this.movies = movies;
-        this.itemViewOnClickListener = listener;
+        this.mMovies = movies;
+        this.mItemViewOnClickListener = listener;
     }
 
     @Override
@@ -45,32 +41,36 @@ public class PosterAdapter extends RecyclerView.Adapter<PosterAdapter.PosterView
 
     @Override
     public int getItemCount() {
-        return movies.size();
+        return mMovies.size();
+    }
+
+    public interface ItemViewOnClickListener {
+        void onItemViewClick(int position);
     }
 
     class PosterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private Context context;
-        private ImageView posterImageView;
+        private Context mContext;
+        private ImageView mPosterImageView;
 
         public PosterViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
-            context = itemView.getContext();
-            posterImageView = (ImageView) itemView.findViewById(R.id.iv_movie_poster);
+            mContext = itemView.getContext();
+            mPosterImageView = (ImageView) itemView.findViewById(R.id.iv_movie_poster);
         }
 
         void bind(int position) {
-            String posterImageUrl = movies.get(position).getPosterImageUrl();
-            Picasso.with(context)
+            String posterImageUrl = mMovies.get(position).getPosterImageUrl();
+            Picasso.with(mContext)
                     .load(posterImageUrl)
                     .placeholder(R.drawable.placeholder_poster)
-                    .into(posterImageView);
+                    .into(mPosterImageView);
         }
 
         @Override
         public void onClick(View itemView) {
-            itemViewOnClickListener.onItemViewClick(getAdapterPosition());
+            mItemViewOnClickListener.onItemViewClick(getAdapterPosition());
         }
 
     }

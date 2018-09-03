@@ -3,15 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_toggle_sort_order"
+        android:id="@+id/menu_toggle_sort_order"
         android:orderInCategory="1"
-        android:title="@string/query_by_vote_avg"
+        android:title="@string/menu_by_vote_avg"
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/action_refresh"
+        android:id="@+id/menu_refresh"
         android:orderInCategory="2"
-        android:title="@string/refresh"
+        android:title="@string/menu_refresh"
         app:showAsAction="collapseActionView" />
 
 </menu>
