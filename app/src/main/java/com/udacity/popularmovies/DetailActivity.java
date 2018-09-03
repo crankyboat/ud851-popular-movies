@@ -64,7 +64,7 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void closeOnError() {
-        Toast.makeText(this, R.string.error_detail, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, R.string.error_detail, Toast.LENGTH_SHORT).show();
         finish();
     }
 

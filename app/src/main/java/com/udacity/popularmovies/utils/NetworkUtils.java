@@ -40,6 +40,7 @@ public class NetworkUtils {
         HttpURLConnection urlConnection = null;
         try {
             urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setUseCaches(false);
             InputStream in = urlConnection.getInputStream();
 
             Scanner scanner = new Scanner(in);

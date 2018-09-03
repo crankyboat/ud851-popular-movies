@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
     }
 
     private void showErrorToast(int resourceId) {
-        Toast.makeText(this, resourceId, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, resourceId, Toast.LENGTH_SHORT).show();
     }
 
     private class MovieQueryTask extends AsyncTask<URL, Void, String> {
@@ -119,11 +119,10 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
         protected void onPostExecute(String queryResults) {
             super.onPostExecute(queryResults);
 
+            List<Movie> movies = null;
             if (queryResults != null && !queryResults.equals("")) {
                 try {
-                    mMovies.clear();
-                    mMovies.addAll(JsonUtils.parseMovieJson(queryResults));
-                    mMoviePosterAdapter.notifyDataSetChanged();
+                    movies = JsonUtils.parseMovieJson(queryResults);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     showErrorToast(R.string.error_main_json);
@@ -131,6 +130,10 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
             } else {
                 showErrorToast(R.string.error_main_api);
             }
+
+            mMovies.clear();
+            mMovies.addAll(movies != null ? movies : new ArrayList<Movie>());
+            mMoviePosterAdapter.notifyDataSetChanged();
         }
 
     }
