@@ -16,17 +16,17 @@ public class NetworkUtils {
 
     private static final String TAG = NetworkUtils.class.getSimpleName();
 
-    private static final String MOVIE_API_BASE_URL = "https://api.themoviedb.org/3/discover/movie";
+    private static final String MOVIE_API_BASE_URL = "https://api.themoviedb.org/3/movie/";
     private static final String PARAM_API_KEY = "api_key";
-    private static final String PARAM_SORT = "sort_by";
-    private static final String SORT_ORDER_POPULARITY = "popularity.desc";
-    private static final String SORT_ORDER_VOTE = "vote_average.desc";
+    private static final String SORT_ORDER_POPULARITY = "popular";
+    private static final String SORT_ORDER_VOTE = "top_rated";
 
     public static URL buildUrl(String apiKey, boolean sortByPopularity) throws MalformedURLException {
 
-        Uri builtUri = Uri.parse(MOVIE_API_BASE_URL).buildUpon()
+        String sortOrder = sortByPopularity ? SORT_ORDER_POPULARITY : SORT_ORDER_VOTE;
+
+        Uri builtUri = Uri.parse(MOVIE_API_BASE_URL+sortOrder).buildUpon()
                 .appendQueryParameter(PARAM_API_KEY, apiKey)
-                .appendQueryParameter(PARAM_SORT, sortByPopularity ? SORT_ORDER_POPULARITY : SORT_ORDER_VOTE)
                 .build();
 
         if (BuildConfig.DEBUG) { Log.d(TAG, "Uri " + builtUri.toString()); }
