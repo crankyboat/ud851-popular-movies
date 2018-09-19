@@ -1,11 +1,13 @@
 package com.udacity.popularmovies;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -25,23 +27,38 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements PosterAdapter.ItemViewOnClickListener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String BUNDLE_SORT_BY_POPULARITY = "BUNDLE_SORT_BY_POPULARITY";
     private static final int GRID_LAYOUT_SPAN_COUNT = 2;
 
     private boolean mSortByPopularity;
     private RecyclerView mMoviePostersRecyclerView;
     private PosterAdapter mMoviePosterAdapter;
     private List<Movie> mMovies;
+    private MovieViewModel mMovieViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mSortByPopularity = true;
-        mMovies = new ArrayList<Movie>();
+        /* Get Sort Order */
+        if (savedInstanceState == null) {
+            mSortByPopularity = true;
+        } else {
+            mSortByPopularity = savedInstanceState.getBoolean(BUNDLE_SORT_BY_POPULARITY);
+        }
 
-        queryMovies();
+        /* Get Movie Data */
+        mMovieViewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
+        if (mMovieViewModel.getMovies() == null) {
+            mMovies = new ArrayList<Movie>();
+            mMovieViewModel.setMovies(mMovies);
+            queryMovies();
+        } else {
+            mMovies = mMovieViewModel.getMovies();
+        }
 
+        /* Set up RecyclerView */
         GridLayoutManager layoutManager = new GridLayoutManager(this, GRID_LAYOUT_SPAN_COUNT);
         mMoviePostersRecyclerView = (RecyclerView) findViewById(R.id.rv_movie_posters);
         mMoviePostersRecyclerView.setLayoutManager(layoutManager);
@@ -52,7 +69,17 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main, menu);
+        MenuItem menuItem = menu.findItem(R.id.menu_toggle_sort_order);
+        menuItem.setTitle(mSortByPopularity
+                ? R.string.menu_by_vote_avg
+                : R.string.menu_by_popularity);
         return true;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(BUNDLE_SORT_BY_POPULARITY, mSortByPopularity);
     }
 
     @Override
@@ -63,9 +90,9 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
                 return true;
             case R.id.menu_toggle_sort_order:
                 mSortByPopularity = !mSortByPopularity;
-                item.setTitle(mSortByPopularity ?
-                        R.string.menu_by_vote_avg :
-                        R.string.menu_by_popularity);
+                item.setTitle(mSortByPopularity
+                        ? R.string.menu_by_vote_avg
+                        : R.string.menu_by_popularity);
                 queryMovies();
                 return true;
             default:
@@ -134,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
             mMovies.clear();
             mMovies.addAll(movies != null ? movies : new ArrayList<Movie>());
             mMoviePosterAdapter.notifyDataSetChanged();
+            mMoviePostersRecyclerView.smoothScrollToPosition(0);
         }
 
     }
