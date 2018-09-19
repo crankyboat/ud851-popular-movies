@@ -32,14 +32,15 @@ public class JsonUtils {
         for (int i = 0; i < pageLength; i++) {
             JSONObject movieJson = pageJsonArray.getJSONObject(i);
 
-            String title = movieJson.getString(MOVIE_TITLE);
-            String releaseDate = movieJson.getString(MOVIE_RELEASE_DATE);
-            String plotSynopsis = movieJson.getString(MOVIE_PLOT_SYNOPSIS);
-            double voteAverage = movieJson.getDouble(MOVIE_VOTE_AVG);
+            String title = movieJson.optString(MOVIE_TITLE);
+            String releaseDate = movieJson.optString(MOVIE_RELEASE_DATE);
+            String plotSynopsis = movieJson.optString(MOVIE_PLOT_SYNOPSIS);
+            double voteAverage = movieJson.optDouble(MOVIE_VOTE_AVG);
 
             String posterImageUrl = null;
-            if (movieJson.getString(MOVIE_POSTER_IMG_PATH) != null) {
-                posterImageUrl = MOVIE_POSTER_IMG_URL + MOVIE_POSTER_IMG_RES + movieJson.getString(MOVIE_POSTER_IMG_PATH);
+            String posterImagePath = movieJson.optString(MOVIE_POSTER_IMG_PATH);
+            if (posterImagePath != null && !posterImagePath.isEmpty()) {
+                posterImageUrl = MOVIE_POSTER_IMG_URL + MOVIE_POSTER_IMG_RES + posterImagePath;
             }
 
             movies.add(new Movie(title, releaseDate, plotSynopsis, posterImageUrl, voteAverage));

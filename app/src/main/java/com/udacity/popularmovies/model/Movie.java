@@ -14,7 +14,7 @@ public class Movie implements Serializable {
     private double mVoteAverage;
 
     public Movie(String title, String releaseDate, String plotSynopsis, String posterImageUrl, double voteAverage) {
-        this.mTitle = title;
+        this.mTitle = title != null && !title.isEmpty() ? title : NOT_AVAILABLE_STRING;
         this.mReleaseDate = releaseDate != null && !releaseDate.isEmpty() ? releaseDate : NOT_AVAILABLE_STRING;
         this.mPlotSynopsis = plotSynopsis != null && !plotSynopsis.isEmpty() ? plotSynopsis : NOT_AVAILABLE_STRING;
         this.mPosterImageUrl = posterImageUrl != null && !posterImageUrl.isEmpty() ? posterImageUrl : null;
