@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
     }
 
     private void queryMovies() {
-        String apiKey = getResources().getString(R.string.api_key);
+        String apiKey = BuildConfig.MOVIE_DATABASE_API_KEY;
 
         if (NetworkUtils.isConnectedToInternet(this)) {
 
