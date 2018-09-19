@@ -14,6 +14,7 @@
     <string name="detail_label_plot_synopsis">Plot Synopsis</string>
     <string name="detail_label_vote_avg">Vote Average</string>
 
+    <string name="error_main_network">Error connecting to network</string>
     <string name="error_main_url">Error building database url</string>
     <string name="error_main_api">Error connecting to database</string>
     <string name="error_main_json">Error parsing movie data</string>

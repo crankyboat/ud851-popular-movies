@@ -109,16 +109,22 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
     private void queryMovies() {
         String apiKey = getResources().getString(R.string.api_key);
 
-        URL queryUrl = null;
-        try {
-            queryUrl = NetworkUtils.buildUrl(apiKey, mSortByPopularity);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            showErrorToast(R.string.error_main_url);
-        }
+        if (NetworkUtils.isConnectedToInternet(this)) {
 
-        if (queryUrl != null) {
-            new MovieQueryTask().execute(queryUrl);
+            URL queryUrl = null;
+            try {
+                queryUrl = NetworkUtils.buildUrl(apiKey, mSortByPopularity);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                showErrorToast(R.string.error_main_url);
+            }
+
+            if (queryUrl != null) {
+                new MovieQueryTask().execute(queryUrl);
+            }
+
+        } else {
+            showErrorToast(R.string.error_main_network);
         }
     }
 

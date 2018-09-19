@@ -1,5 +1,8 @@
 package com.udacity.popularmovies.utils;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.util.Log;
 
@@ -20,6 +23,21 @@ public class NetworkUtils {
     private static final String PARAM_API_KEY = "api_key";
     private static final String SORT_ORDER_POPULARITY = "popular";
     private static final String SORT_ORDER_VOTE = "top_rated";
+
+    public static boolean isConnectedToInternet(Context context) {
+
+        boolean isConnected = false;
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        if (cm != null) {
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        }
+
+        return isConnected;
+
+    }
 
     public static URL buildUrl(String apiKey, boolean sortByPopularity) throws MalformedURLException {
 
