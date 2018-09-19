@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="iv_height">200dp</dimen>
-    <dimen name="rv_item_height">185dp</dimen>
+    <dimen name="rv_item_height">154dp</dimen>
     <dimen name="tv_padding">16dp</dimen>
     <dimen name="tv_textsize">18sp</dimen>
 </resources>

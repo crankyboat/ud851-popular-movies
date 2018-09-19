@@ -7,7 +7,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -28,7 +30,6 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String BUNDLE_SORT_BY_POPULARITY = "BUNDLE_SORT_BY_POPULARITY";
-    private static final int GRID_LAYOUT_SPAN_COUNT = 2;
 
     private boolean mSortByPopularity;
     private RecyclerView mMoviePostersRecyclerView;
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
         }
 
         /* Set up RecyclerView */
-        GridLayoutManager layoutManager = new GridLayoutManager(this, GRID_LAYOUT_SPAN_COUNT);
+        GridLayoutManager layoutManager = new GridLayoutManager(this, calculateBestSpanCount());
         mMoviePostersRecyclerView = (RecyclerView) findViewById(R.id.rv_movie_posters);
         mMoviePostersRecyclerView.setLayoutManager(layoutManager);
         mMoviePosterAdapter = new PosterAdapter(mMovies, this);
@@ -106,6 +107,14 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
         startActivity(intent);
     }
 
+    private int calculateBestSpanCount() {
+        int posterHeight = getResources().getDimensionPixelSize(R.dimen.rv_item_height);
+        Display display = getWindowManager().getDefaultDisplay();
+        DisplayMetrics outMetrics = new DisplayMetrics();
+        display.getMetrics(outMetrics);
+        return Math.round(outMetrics.widthPixels / posterHeight);
+    }
+
     private void queryMovies() {
         String apiKey = BuildConfig.MOVIE_DATABASE_API_KEY;
 
@@ -117,6 +126,11 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
             } catch (MalformedURLException e) {
                 e.printStackTrace();
                 showErrorToast(R.string.error_main_url);
+
+                mMovies.clear();
+                if (mMoviePosterAdapter != null) {
+                    mMoviePosterAdapter.notifyDataSetChanged();
+                }
             }
 
             if (queryUrl != null) {
@@ -125,6 +139,11 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
 
         } else {
             showErrorToast(R.string.error_main_network);
+
+            mMovies.clear();
+            if (mMoviePosterAdapter != null) {
+                mMoviePosterAdapter.notifyDataSetChanged();
+            }
         }
     }
 
