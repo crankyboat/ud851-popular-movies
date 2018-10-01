@@ -3,15 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menu_toggle_sort_order"
-        android:orderInCategory="1"
-        android:title="@string/menu_by_vote_avg"
-        app:showAsAction="ifRoom" />
-
-    <item
         android:id="@+id/menu_refresh"
-        android:orderInCategory="2"
+        android:orderInCategory="1"
         android:title="@string/menu_refresh"
         app:showAsAction="collapseActionView" />
+
+    <item
+        android:id="@+id/menu_sort_by_popularity"
+        android:orderInCategory="2"
+        android:title="@string/menu_by_popularity"
+        app:showAsAction="collapseActionView" />
+
+    <item
+        android:id="@+id/menu_sort_by_vote_avg"
+        android:orderInCategory="3"
+        android:title="@string/menu_by_vote_avg"
+        app:showAsAction="collapseActionView" />
+
+    <item
+        android:id="@+id/menu_favorites"
+        android:orderInCategory="4"
+        android:title="@string/menu_favorites"
+        app:showAsAction="collapseActionView"/>
 
 </menu>

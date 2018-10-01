@@ -15,6 +15,7 @@ public class JsonUtils {
     private static final int MAX_NUM_OF_MOVIES_TO_PARSE = 100;
 
     private static final String PAGE_RESULTS = "results";
+    private static final String MOVIE_ID = "id";
     private static final String MOVIE_TITLE = "original_title";
     private static final String MOVIE_RELEASE_DATE = "release_date";
     private static final String MOVIE_PLOT_SYNOPSIS = "overview";
@@ -22,6 +23,8 @@ public class JsonUtils {
     private static final String MOVIE_POSTER_IMG_RES = "w342";
     private static final String MOVIE_POSTER_IMG_PATH = "poster_path";
     private static final String MOVIE_VOTE_AVG = "vote_average";
+
+    private static final String MOVIE_TRAILER_KEY = "key";
 
     public static List<Movie> parseMovieJson(String json) throws JSONException {
 
@@ -32,6 +35,7 @@ public class JsonUtils {
         for (int i = 0; i < pageLength; i++) {
             JSONObject movieJson = pageJsonArray.getJSONObject(i);
 
+            int id = movieJson.optInt(MOVIE_ID);
             String title = movieJson.optString(MOVIE_TITLE);
             String releaseDate = movieJson.optString(MOVIE_RELEASE_DATE);
             String plotSynopsis = movieJson.optString(MOVIE_PLOT_SYNOPSIS);
@@ -43,10 +47,25 @@ public class JsonUtils {
                 posterImageUrl = MOVIE_POSTER_IMG_URL + MOVIE_POSTER_IMG_RES + posterImagePath;
             }
 
-            movies.add(new Movie(title, releaseDate, plotSynopsis, posterImageUrl, voteAverage));
+            movies.add(new Movie(id, title, releaseDate, plotSynopsis, posterImageUrl, voteAverage));
         }
 
         return movies;
+    }
+
+    public static String parseMovieTrailer(String json) throws JSONException {
+
+        List<String> trailerKeys = new ArrayList<String>();
+
+        JSONArray pageJsonArray = new JSONObject(json).getJSONArray(PAGE_RESULTS);
+        int pageLength = Math.min(MAX_NUM_OF_MOVIES_TO_PARSE, pageJsonArray.length());
+        for (int i = 0; i < pageLength; i++) {
+            JSONObject videoJson = pageJsonArray.getJSONObject(i);
+            String key = videoJson.optString(MOVIE_TRAILER_KEY);
+            trailerKeys.add(key);
+        }
+
+        return trailerKeys.size() > 0 ? trailerKeys.get(0) : null;
     }
 
 }
