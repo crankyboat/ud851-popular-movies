@@ -24,6 +24,9 @@ public class NetworkUtils {
     private static final String SORT_ORDER_POPULARITY = "popular";
     private static final String SORT_ORDER_VOTE = "top_rated";
 
+    public static final String VIDEOS = "videos";
+    public static final String REVIEWS = "reviews";
+
     public static boolean isConnectedToInternet(Context context) {
 
         boolean isConnected = false;
@@ -51,6 +54,20 @@ public class NetworkUtils {
 
         return new URL(builtUri.toString());
 
+    }
+
+    public static URL buildGetMoreResourcesUrl(String apiKey, String resourceType, int movieId) throws MalformedURLException {
+
+        String path = resourceType.equals(VIDEOS) ? VIDEOS : REVIEWS;
+        String movieIdString = String.valueOf(movieId);
+
+        Uri builtUri = Uri.parse(MOVIE_API_BASE_URL+movieIdString+"/"+path).buildUpon()
+                .appendQueryParameter(PARAM_API_KEY, apiKey)
+                .build();
+
+        if (BuildConfig.DEBUG) { Log.d(TAG, "Uri " + builtUri.toString()); }
+
+        return new URL(builtUri.toString());
     }
 
     public static String getResponseFromHttpUrl(URL url) throws IOException {

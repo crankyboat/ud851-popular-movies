@@ -2,15 +2,16 @@ package com.udacity.popularmovies;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,14 +20,12 @@ import android.widget.Toast;
 import com.udacity.popularmovies.database.AppDatabaseUtils;
 import com.udacity.popularmovies.database.MovieEntry;
 import com.udacity.popularmovies.model.Movie;
+import com.udacity.popularmovies.sync.SyncIntentService;
+import com.udacity.popularmovies.sync.SyncTasks;
 import com.udacity.popularmovies.utils.JsonUtils;
-import com.udacity.popularmovies.utils.NetworkUtils;
 
 import org.json.JSONException;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +37,12 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
     private static final String PAGE_VOTE_AVG = "page_vote_avg";
     private static final String PAGE_FAVORITES = "page_favorites";
 
+    public static final String ACTION_LOAD_SUCCESS = "load_success";
+    public static final String ACTION_URL_ERROR = "url_error";
+    public static final String ACTION_NETWORK_ERROR = "network_error";
+    public static final String ACTION_JSON_ERROR = "json_error";
+    public static final String ACTION_API_ERROR = "api_error";
+
     private String mCurrentPage;
     private RecyclerView mMoviePostersRecyclerView;
     private PosterAdapter mMoviePosterAdapter;
@@ -45,6 +50,9 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
     private List<Movie> mFavoriteMovies;
     private MovieViewModel mMovieViewModel;
     private FavoriteViewModel mFavoriteViewModel;
+
+    private BroadcastReceiver mBroadcastReceiver;
+    private IntentFilter mIntentFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +76,24 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
         mMoviePosterAdapter = new PosterAdapter(mMovies, this);
         mMoviePostersRecyclerView.setAdapter(mMoviePosterAdapter);
 
+        mBroadcastReceiver = new QueryResultsBroadcastReceiver();
+        mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction(SyncTasks.ACTION_LOAD_SUCCESS);
+        mIntentFilter.addAction(SyncTasks.ACTION_URL_ERROR);
+        mIntentFilter.addAction(SyncTasks.ACTION_NETWORK_ERROR);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(mBroadcastReceiver, mIntentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(mBroadcastReceiver);
     }
 
     @Override
@@ -153,87 +179,76 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
     }
 
     private void updateMovieDataAndNotifyAdapter(List<Movie> movies) {
-
         mMovies.clear();
         mMovies.addAll(movies != null ? movies : new ArrayList<Movie>());
         mMoviePosterAdapter.notifyDataSetChanged();
         mMoviePostersRecyclerView.smoothScrollToPosition(0);
+    }
 
+    private void clearMovieDataAndNotifyAdapter() {
+        mMovies.clear();
+        if (mMoviePosterAdapter != null) {
+            mMoviePosterAdapter.notifyDataSetChanged();
+        }
     }
 
     private void queryMovies() {
         String apiKey = BuildConfig.MOVIE_DATABASE_API_KEY;
         boolean sortByPopularity = mCurrentPage.equals(PAGE_POPULARITY);
-
-        if (NetworkUtils.isConnectedToInternet(this)) {
-
-            URL queryUrl = null;
-            try {
-                queryUrl = NetworkUtils.buildUrl(apiKey, sortByPopularity);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-                showErrorToast(R.string.error_main_url);
-
-                mMovies.clear();
-                if (mMoviePosterAdapter != null) {
-                    mMoviePosterAdapter.notifyDataSetChanged();
-                }
-            }
-
-            if (queryUrl != null) {
-                new MovieQueryTask().execute(queryUrl);
-            }
-
-        } else {
-            showErrorToast(R.string.error_main_network);
-
-            mMovies.clear();
-            if (mMoviePosterAdapter != null) {
-                mMoviePosterAdapter.notifyDataSetChanged();
-            }
-        }
+        Intent intent = SyncIntentService.getStartIntent(
+                this, SyncTasks.ACTION_LOAD_MOVIES, apiKey, sortByPopularity);
+        startService(intent);
     }
 
     private void showErrorToast(int resourceId) {
         Toast.makeText(this, resourceId, Toast.LENGTH_SHORT).show();
     }
 
-    private class MovieQueryTask extends AsyncTask<URL, Void, String> {
+    private void parseAndDisplayData(String queryResults) {
 
-        @Override
-        protected String doInBackground(URL... urls) {
-
-            URL queryUrl = urls[0];
-            String queryResults = null;
+        List<Movie> movies = null;
+        if (queryResults != null && !queryResults.equals("")) {
             try {
-                queryResults = NetworkUtils.getResponseFromHttpUrl(queryUrl);
-            } catch (IOException e) {
+                movies = JsonUtils.parseMovieJson(queryResults);
+            } catch (JSONException e) {
                 e.printStackTrace();
+                showErrorToast(R.string.error_main_json);
             }
-
-            return queryResults;
+        } else {
+            showErrorToast(R.string.error_main_api);
         }
+        updateMovieDataAndNotifyAdapter(movies);
+
+    }
+
+    private class QueryResultsBroadcastReceiver extends BroadcastReceiver {
 
         @Override
-        protected void onPostExecute(String queryResults) {
-            super.onPostExecute(queryResults);
-
-            List<Movie> movies = null;
-            if (queryResults != null && !queryResults.equals("")) {
-                try {
-                    movies = JsonUtils.parseMovieJson(queryResults);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    showErrorToast(R.string.error_main_json);
-                }
-            } else {
-                showErrorToast(R.string.error_main_api);
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            String results = null;
+            if (intent.hasExtra(Intent.EXTRA_TEXT)) {
+                results = intent.getStringExtra(Intent.EXTRA_TEXT);
             }
 
-            updateMovieDataAndNotifyAdapter(movies);
-
+            switch (action) {
+                case SyncTasks.ACTION_LOAD_SUCCESS:
+                    if (results != null) {
+                        parseAndDisplayData(results);
+                    }
+                    break;
+                case SyncTasks.ACTION_URL_ERROR:
+                    showErrorToast(R.string.error_main_url);
+                    clearMovieDataAndNotifyAdapter();
+                    break;
+                case SyncTasks.ACTION_NETWORK_ERROR:
+                    showErrorToast(R.string.error_main_network);
+                    clearMovieDataAndNotifyAdapter();
+                    break;
+                default:
+                    break;
+            }
         }
-
     }
 
 }

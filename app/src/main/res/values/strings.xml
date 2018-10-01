@@ -13,10 +13,14 @@
     <string name="detail_label_release_date">Release Date</string>
     <string name="detail_label_plot_synopsis">Plot Synopsis</string>
     <string name="detail_label_vote_avg">Vote Average</string>
+    <string name="detail_label_trailer">Trailer</string>
+    <string name="detail_label_review">Reviews</string>
+    <string name="detail_button_play_trailer">Trailer</string>
     <string name="detail_button_add_to_favorites">Add to Favorites</string>
     <string name="detail_button_remove_from_favorites">Remove from Favorites</string>
     <string name="detail_toast_add_to_favorites">Added to Favorites</string>
     <string name="detail_toast_remove_from_favorites">Removed from Favorites</string>
+
 
     <string name="error_main_network">Error connecting to network</string>
     <string name="error_main_url">Error building database url</string>

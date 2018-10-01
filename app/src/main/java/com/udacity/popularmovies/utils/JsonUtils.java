@@ -24,6 +24,8 @@ public class JsonUtils {
     private static final String MOVIE_POSTER_IMG_PATH = "poster_path";
     private static final String MOVIE_VOTE_AVG = "vote_average";
 
+    private static final String MOVIE_TRAILER_KEY = "key";
+
     public static List<Movie> parseMovieJson(String json) throws JSONException {
 
         List<Movie> movies = new ArrayList<Movie>();
@@ -49,6 +51,21 @@ public class JsonUtils {
         }
 
         return movies;
+    }
+
+    public static String parseMovieTrailer(String json) throws JSONException {
+
+        List<String> trailerKeys = new ArrayList<String>();
+
+        JSONArray pageJsonArray = new JSONObject(json).getJSONArray(PAGE_RESULTS);
+        int pageLength = Math.min(MAX_NUM_OF_MOVIES_TO_PARSE, pageJsonArray.length());
+        for (int i = 0; i < pageLength; i++) {
+            JSONObject videoJson = pageJsonArray.getJSONObject(i);
+            String key = videoJson.optString(MOVIE_TRAILER_KEY);
+            trailerKeys.add(key);
+        }
+
+        return trailerKeys.size() > 0 ? trailerKeys.get(0) : null;
     }
 
 }

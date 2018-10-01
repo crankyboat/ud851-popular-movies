@@ -77,6 +77,25 @@
             android:text="@string/detail_button_add_to_favorites"
             android:onClick="toggleFavoriteStatus"/>
 
+        <Button
+            android:id="@+id/button_play_trailer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/detail_button_play_trailer" />
+
+        <TextView
+            style="@style/MyTextViewStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/detail_label_review"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_review"
+            style="@style/MyTextViewStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 
 </ScrollView>

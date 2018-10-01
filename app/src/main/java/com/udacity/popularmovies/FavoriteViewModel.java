@@ -25,4 +25,5 @@ public class FavoriteViewModel extends AndroidViewModel {
     public LiveData<List<MovieEntry>> getMovieEntries() {
         return movieEntries;
     }
+
 }
