@@ -135,8 +135,12 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
                 }
                 for (int i = 0; i < movieEntries.size(); i++) {
                     mFavoriteMovies.add(new Movie(
-                            movieEntries.get(i).getTitle(), null, null,
-                            movieEntries.get(i).getImageUrl(), 0));
+                            movieEntries.get(i).getId(),
+                            movieEntries.get(i).getTitle(),
+                            null,
+                            null,
+                            movieEntries.get(i).getImageUrl(),
+                            0));
                 }
             }
         });

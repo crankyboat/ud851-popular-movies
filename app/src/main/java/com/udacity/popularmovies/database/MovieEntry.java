@@ -2,7 +2,6 @@ package com.udacity.popularmovies.database;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
 import java.util.Date;
@@ -10,7 +9,7 @@ import java.util.Date;
 @Entity(tableName = "movie")
 public class MovieEntry {
 
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     private int id;
 
     private String title;
@@ -20,13 +19,6 @@ public class MovieEntry {
 
     @ColumnInfo(name = "updated_at")
     private Date updatedAt;
-
-    @Ignore
-    public MovieEntry(String title, String imageUrl, Date updatedAt) {
-        this.title = title;
-        this.imageUrl = imageUrl;
-        this.updatedAt = updatedAt;
-    }
 
     public MovieEntry(int id, String title, String imageUrl, Date updatedAt) {
         this.id = id;
