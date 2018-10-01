@@ -16,7 +16,7 @@ public interface TaskDao {
     @Query("SELECT * FROM movie ORDER BY updated_at DESC")
     LiveData<List<MovieEntry>> loadAllMovies();
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertMovie(MovieEntry movieEntry);
 
     @Update(onConflict = OnConflictStrategy.REPLACE)

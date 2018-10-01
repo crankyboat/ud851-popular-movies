@@ -7,7 +7,6 @@ import android.util.Log;
 
 import com.udacity.popularmovies.database.AppDatabase;
 import com.udacity.popularmovies.database.MovieEntry;
-import com.udacity.popularmovies.model.Movie;
 
 import java.util.List;
 

@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.udacity.popularmovies.database.AppDatabaseUtils;
 import com.udacity.popularmovies.database.MovieEntry;
 import com.udacity.popularmovies.model.Movie;
 import com.udacity.popularmovies.utils.JsonUtils;
@@ -85,7 +86,9 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_refresh:
-                queryMovies();
+                if (!mCurrentPage.equals(PAGE_FAVORITES)) {
+                    queryMovies();
+                }
                 return true;
             case R.id.menu_sort_by_popularity:
                 mCurrentPage = PAGE_POPULARITY;
@@ -134,13 +137,8 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
                     mFavoriteMovies.clear();
                 }
                 for (int i = 0; i < movieEntries.size(); i++) {
-                    mFavoriteMovies.add(new Movie(
-                            movieEntries.get(i).getId(),
-                            movieEntries.get(i).getTitle(),
-                            null,
-                            null,
-                            movieEntries.get(i).getImageUrl(),
-                            0));
+                    Movie movie = AppDatabaseUtils.getMovieFromMovieEntry(movieEntries.get(i));
+                    mFavoriteMovies.add(movie);
                 }
             }
         });
