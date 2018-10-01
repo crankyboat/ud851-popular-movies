@@ -1,9 +1,11 @@
 package com.udacity.popularmovies;
 
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.udacity.popularmovies.database.MovieEntry;
 import com.udacity.popularmovies.model.Movie;
 import com.udacity.popularmovies.utils.JsonUtils;
 import com.udacity.popularmovies.utils.NetworkUtils;
@@ -29,13 +32,18 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements PosterAdapter.ItemViewOnClickListener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static final String BUNDLE_SORT_BY_POPULARITY = "BUNDLE_SORT_BY_POPULARITY";
+    private static final String BUNDLE_CURRENT_PAGE = "BUNDLE_CURRENT_PAGE";
+    private static final String PAGE_POPULARITY = "page_popularity";
+    private static final String PAGE_VOTE_AVG = "page_vote_avg";
+    private static final String PAGE_FAVORITES = "page_favorites";
 
-    private boolean mSortByPopularity;
+    private String mCurrentPage;
     private RecyclerView mMoviePostersRecyclerView;
     private PosterAdapter mMoviePosterAdapter;
     private List<Movie> mMovies;
+    private List<Movie> mFavoriteMovies;
     private MovieViewModel mMovieViewModel;
+    private FavoriteViewModel mFavoriteViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,20 +52,13 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
 
         /* Get Sort Order */
         if (savedInstanceState == null) {
-            mSortByPopularity = true;
+            mCurrentPage = PAGE_POPULARITY;
         } else {
-            mSortByPopularity = savedInstanceState.getBoolean(BUNDLE_SORT_BY_POPULARITY);
+            mCurrentPage = savedInstanceState.getString(BUNDLE_CURRENT_PAGE);
         }
 
-        /* Get Movie Data */
-        mMovieViewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
-        if (mMovieViewModel.getMovies() == null) {
-            mMovies = new ArrayList<Movie>();
-            mMovieViewModel.setMovies(mMovies);
-            queryMovies();
-        } else {
-            mMovies = mMovieViewModel.getMovies();
-        }
+        setupMovieViewModel();
+        setupFavoriteViewModel();
 
         /* Set up RecyclerView */
         GridLayoutManager layoutManager = new GridLayoutManager(this, calculateBestSpanCount());
@@ -65,22 +66,19 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
         mMoviePostersRecyclerView.setLayoutManager(layoutManager);
         mMoviePosterAdapter = new PosterAdapter(mMovies, this);
         mMoviePostersRecyclerView.setAdapter(mMoviePosterAdapter);
+
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main, menu);
-        MenuItem menuItem = menu.findItem(R.id.menu_toggle_sort_order);
-        menuItem.setTitle(mSortByPopularity
-                ? R.string.menu_by_vote_avg
-                : R.string.menu_by_popularity);
         return true;
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(BUNDLE_SORT_BY_POPULARITY, mSortByPopularity);
+        outState.putString(BUNDLE_CURRENT_PAGE, mCurrentPage);
     }
 
     @Override
@@ -89,12 +87,17 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
             case R.id.menu_refresh:
                 queryMovies();
                 return true;
-            case R.id.menu_toggle_sort_order:
-                mSortByPopularity = !mSortByPopularity;
-                item.setTitle(mSortByPopularity
-                        ? R.string.menu_by_vote_avg
-                        : R.string.menu_by_popularity);
+            case R.id.menu_sort_by_popularity:
+                mCurrentPage = PAGE_POPULARITY;
                 queryMovies();
+                return true;
+            case R.id.menu_sort_by_vote_avg:
+                mCurrentPage = PAGE_VOTE_AVG;
+                queryMovies();
+                return true;
+            case R.id.menu_favorites:
+                mCurrentPage = PAGE_FAVORITES;
+                updateMovieDataAndNotifyAdapter(mFavoriteMovies);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -103,8 +106,40 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
 
     @Override
     public void onItemViewClick(int position) {
-        Intent intent = DetailActivity.getStartIntent(MainActivity.this, mMovies.get(position));
-        startActivity(intent);
+        if (!mCurrentPage.equals(PAGE_FAVORITES)) {
+            Intent intent = DetailActivity.getStartIntent(MainActivity.this, mMovies.get(position));
+            startActivity(intent);
+        }
+    }
+
+    private void setupMovieViewModel() {
+        mMovieViewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
+        if (mMovieViewModel.getMovies() == null) {
+            mMovies = new ArrayList<Movie>();
+            mMovieViewModel.setMovies(mMovies);
+            queryMovies();
+        } else {
+            mMovies = mMovieViewModel.getMovies();
+        }
+    }
+
+    private void setupFavoriteViewModel() {
+        mFavoriteViewModel = ViewModelProviders.of(this).get(FavoriteViewModel.class);
+        mFavoriteViewModel.getMovieEntries().observe(this, new Observer<List<MovieEntry>>() {
+            @Override
+            public void onChanged(@Nullable List<MovieEntry> movieEntries) {
+                if (mFavoriteMovies == null) {
+                    mFavoriteMovies = new ArrayList<Movie>();
+                } else {
+                    mFavoriteMovies.clear();
+                }
+                for (int i = 0; i < movieEntries.size(); i++) {
+                    mFavoriteMovies.add(new Movie(
+                            movieEntries.get(i).getTitle(), null, null,
+                            movieEntries.get(i).getImageUrl(), 0));
+                }
+            }
+        });
     }
 
     private int calculateBestSpanCount() {
@@ -115,14 +150,24 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
         return Math.round(outMetrics.widthPixels / posterHeight);
     }
 
+    private void updateMovieDataAndNotifyAdapter(List<Movie> movies) {
+
+        mMovies.clear();
+        mMovies.addAll(movies != null ? movies : new ArrayList<Movie>());
+        mMoviePosterAdapter.notifyDataSetChanged();
+        mMoviePostersRecyclerView.smoothScrollToPosition(0);
+
+    }
+
     private void queryMovies() {
         String apiKey = BuildConfig.MOVIE_DATABASE_API_KEY;
+        boolean sortByPopularity = mCurrentPage.equals(PAGE_POPULARITY);
 
         if (NetworkUtils.isConnectedToInternet(this)) {
 
             URL queryUrl = null;
             try {
-                queryUrl = NetworkUtils.buildUrl(apiKey, mSortByPopularity);
+                queryUrl = NetworkUtils.buildUrl(apiKey, sortByPopularity);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
                 showErrorToast(R.string.error_main_url);
@@ -183,10 +228,8 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
                 showErrorToast(R.string.error_main_api);
             }
 
-            mMovies.clear();
-            mMovies.addAll(movies != null ? movies : new ArrayList<Movie>());
-            mMoviePosterAdapter.notifyDataSetChanged();
-            mMoviePostersRecyclerView.smoothScrollToPosition(0);
+            updateMovieDataAndNotifyAdapter(movies);
+
         }
 
     }

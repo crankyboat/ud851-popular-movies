@@ -3,6 +3,7 @@
     <string name="app_name">Popular Movies</string>
 
     <string name="menu_refresh">Refresh</string>
+    <string name="menu_favorites">Favorites</string>
     <string name="menu_by_popularity">Most Popular</string>
     <string name="menu_by_vote_avg">Highest Rated</string>
 
