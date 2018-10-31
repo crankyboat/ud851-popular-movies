@@ -22,12 +22,13 @@ import com.udacity.popularmovies.database.AppDatabase;
 import com.udacity.popularmovies.database.AppDatabaseUtils;
 import com.udacity.popularmovies.database.MovieEntry;
 import com.udacity.popularmovies.model.Movie;
+import com.udacity.popularmovies.model.MovieVideo;
 import com.udacity.popularmovies.sync.SyncIntentService;
 import com.udacity.popularmovies.sync.SyncTasks;
 import com.udacity.popularmovies.utils.JsonUtils;
 import com.udacity.popularmovies.utils.NetworkUtils;
 
-import org.json.JSONException;
+import java.util.List;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -68,11 +69,12 @@ public class DetailActivity extends AppCompatActivity {
 
             mBroadcastReceiver = new QueryResultsBroadcastReceiver();
             mIntentFilter = new IntentFilter();
-            mIntentFilter.addAction(SyncTasks.ACTION_LOAD_SUCCESS);
+            mIntentFilter.addAction(SyncTasks.ACTION_LOAD_VIDEOS_SUCCESS);
+            mIntentFilter.addAction(SyncTasks.ACTION_LOAD_REVIEWS_SUCCESS);
             mIntentFilter.addAction(SyncTasks.ACTION_URL_ERROR);
             mIntentFilter.addAction(SyncTasks.ACTION_NETWORK_ERROR);
 
-            queryTrailers();
+            queryMovieResources();
 
         } else {
             closeOnError();
@@ -148,41 +150,45 @@ public class DetailActivity extends AppCompatActivity {
         startService(intent);
     }
 
-    private void queryTrailers() {
+    private void queryMovieResources() {
         String apiKey = BuildConfig.MOVIE_DATABASE_API_KEY;
-        Intent intent = SyncIntentService.getStartIntent(
+
+        // Videos
+        Intent videosIntent = SyncIntentService.getStartIntent(
                 this, SyncTasks.ACTION_LOAD_MOVIE_VIDEOS, apiKey, mMovie.getId(),
                 NetworkUtils.VIDEOS);
-        startService(intent);
+        startService(videosIntent);
+
+        // Reviews
+        Intent reviewsIntent = SyncIntentService.getStartIntent(
+                this, SyncTasks.ACTION_LOAD_MOVIE_REVIEWS, apiKey, mMovie.getId(),
+                NetworkUtils.REVIEWS);
+        startService(reviewsIntent);
     }
 
+    // TODO
     private void parseAndUpdateButtonClickHandler(String queryResults) {
 
         if (queryResults != null && !queryResults.equals("")) {
-            try {
-                final String trailerKey = JsonUtils.parseMovieTrailer(queryResults);
-
-                if (trailerKey != null) {
-                    Button button = (Button) findViewById(R.id.button_play_trailer);
-                    button.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Uri uri = Uri.parse("https://www.youtube.com/watch?v=" + trailerKey);
-                            if (BuildConfig.DEBUG) { Log.d(TAG, "Uri " + uri.toString()); }
-                            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                            if (intent.resolveActivity(getPackageManager()) != null) {
-                                startActivity(intent);
-                            }
+            final List<MovieVideo> movieVideos = JsonUtils.parseMovieVideos(queryResults);
+            final String videoKey = movieVideos.get(0).getKey();
+            if (videoKey != null) {
+                Button button = (Button) findViewById(R.id.button_play_video);
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Uri uri = Uri.parse("https://www.youtube.com/watch?v=" + videoKey);
+                        if (BuildConfig.DEBUG) { Log.d(TAG, "Uri " + uri.toString()); }
+                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                        if (intent.resolveActivity(getPackageManager()) != null) {
+                            startActivity(intent);
                         }
-                    });
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
+                    }
+                });
             }
         } else {
 
         }
-
     }
 
     private class QueryResultsBroadcastReceiver extends BroadcastReceiver {
@@ -192,10 +198,16 @@ public class DetailActivity extends AppCompatActivity {
             String action = intent.getAction();
 
             switch (action) {
-                case SyncTasks.ACTION_LOAD_SUCCESS:
+                case SyncTasks.ACTION_LOAD_VIDEOS_SUCCESS:
                     if (intent.hasExtra(Intent.EXTRA_TEXT)) {
                         String results = intent.getStringExtra(Intent.EXTRA_TEXT);
                         parseAndUpdateButtonClickHandler(results);
+                    }
+                    break;
+                case SyncTasks.ACTION_LOAD_REVIEWS_SUCCESS:
+                    if (intent.hasExtra(Intent.EXTRA_TEXT)) {
+                        String results = intent.getStringExtra(Intent.EXTRA_TEXT);
+                        if (BuildConfig.DEBUG) { Log.d(TAG, results); }
                     }
                     break;
                 case SyncTasks.ACTION_URL_ERROR:

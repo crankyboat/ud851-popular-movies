@@ -78,10 +78,10 @@
             android:onClick="toggleFavoriteStatus"/>
 
         <Button
-            android:id="@+id/button_play_trailer"
+            android:id="@+id/button_play_video"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/detail_button_play_trailer" />
+            android:text="@string/detail_button_play_video" />
 
         <TextView
             style="@style/MyTextViewStyle"

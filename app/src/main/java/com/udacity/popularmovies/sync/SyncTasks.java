@@ -22,6 +22,8 @@ public class SyncTasks {
     public static final String ACTION_LOAD_MOVIE_REVIEWS = "load_reviews";
 
     public static final String ACTION_LOAD_SUCCESS = "load_success";
+    public static final String ACTION_LOAD_VIDEOS_SUCCESS = "load_videos_success";
+    public static final String ACTION_LOAD_REVIEWS_SUCCESS = "load_reviews_success";
     public static final String ACTION_URL_ERROR = "url_error";
     public static final String ACTION_NETWORK_ERROR = "network_error";
 
@@ -101,9 +103,19 @@ public class SyncTasks {
     }
 
     private static void loadMovieResources(Context context, String apiKey, String resourceType,
-                                        int movieId) {
+                                           int movieId) {
 
-        String action = ACTION_LOAD_SUCCESS;
+        String action = null;
+        switch (resourceType) {
+            case NetworkUtils.VIDEOS:
+                action = ACTION_LOAD_VIDEOS_SUCCESS;
+                break;
+            case NetworkUtils.REVIEWS:
+                action = ACTION_LOAD_REVIEWS_SUCCESS;
+                break;
+            default:
+                break;
+        }
         String queryResults = null;
 
         if (NetworkUtils.isConnectedToInternet(context)) {
