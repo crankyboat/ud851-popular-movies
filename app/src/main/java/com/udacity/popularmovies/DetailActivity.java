@@ -78,14 +78,12 @@ public class DetailActivity extends AppCompatActivity implements ItemViewOnClick
             populateViews();
             setTitle(mMovie.getTitle());
 
-            mMovieVideos = new ArrayList<MovieVideo>();
             LinearLayoutManager videoLayoutManager = new LinearLayoutManager(this);
             mMovieVideosRecyclerView = (RecyclerView) findViewById(R.id.rv_movie_videos);
             mMovieVideosRecyclerView.setLayoutManager(videoLayoutManager);
             mMovieVideoAdapter = new VideoAdapter(mMovieVideos, this);
             mMovieVideosRecyclerView.setAdapter(mMovieVideoAdapter);
 
-            mMovieReviews = new ArrayList<MovieReview>();
             LinearLayoutManager reviewLayoutManager = new LinearLayoutManager(this);
             mMovieReviewsRecyclerView = (RecyclerView) findViewById(R.id.rv_movie_reviews);
             mMovieReviewsRecyclerView.setLayoutManager(reviewLayoutManager);
@@ -149,6 +147,21 @@ public class DetailActivity extends AppCompatActivity implements ItemViewOnClick
         int movieId = mMovie.getId();
         DetailViewModelFactory factory = new DetailViewModelFactory(database, movieId);
         DetailViewModel viewModel = ViewModelProviders.of(this, factory).get(DetailViewModel.class);
+
+        if (viewModel.getMovieVideos() != null) {
+            mMovieVideos = viewModel.getMovieVideos();
+        } else {
+            mMovieVideos = new ArrayList<MovieVideo>();
+            viewModel.setMovieVideos(mMovieVideos);
+        }
+
+        if (viewModel.getMovieReviews() != null) {
+            mMovieReviews = viewModel.getMovieReviews();
+        } else {
+            mMovieReviews = new ArrayList<MovieReview>();
+            viewModel.setMovieReviews(mMovieReviews);
+        }
+
         viewModel.getMovieEntry().observe(this, new Observer<MovieEntry>() {
             @Override
             public void onChanged(@Nullable MovieEntry MovieEntry) {
