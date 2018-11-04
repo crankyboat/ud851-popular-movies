@@ -74,9 +74,10 @@ public class DetailActivity extends AppCompatActivity implements ItemViewOnClick
         }
 
         if (mMovie != null) {
+            setTitle(mMovie.getTitle());
             setupDetailViewModel();
             populateViews();
-            setTitle(mMovie.getTitle());
+            queryMovieResources();
 
             LinearLayoutManager videoLayoutManager = new LinearLayoutManager(this);
             mMovieVideosRecyclerView = (RecyclerView) findViewById(R.id.rv_movie_videos);
@@ -96,8 +97,6 @@ public class DetailActivity extends AppCompatActivity implements ItemViewOnClick
             mIntentFilter.addAction(SyncTasks.ACTION_LOAD_REVIEWS_SUCCESS);
             mIntentFilter.addAction(SyncTasks.ACTION_URL_ERROR);
             mIntentFilter.addAction(SyncTasks.ACTION_NETWORK_ERROR);
-
-            queryMovieResources();
 
         } else {
             closeOnError();
@@ -164,8 +163,8 @@ public class DetailActivity extends AppCompatActivity implements ItemViewOnClick
 
         viewModel.getMovieEntry().observe(this, new Observer<MovieEntry>() {
             @Override
-            public void onChanged(@Nullable MovieEntry MovieEntry) {
-                mIsFavorite = MovieEntry != null;
+            public void onChanged(@Nullable MovieEntry movieEntry) {
+                mIsFavorite = movieEntry != null;
                 updateFavoriteButtonText();
             }
         });

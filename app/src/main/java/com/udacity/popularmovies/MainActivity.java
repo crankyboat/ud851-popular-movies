@@ -158,6 +158,9 @@ public class MainActivity extends AppCompatActivity implements ItemViewOnClickLi
                     Movie movie = AppDatabaseUtils.getMovieFromMovieEntry(movieEntries.get(i));
                     mFavoriteMovies.add(movie);
                 }
+                if (mCurrentPage.equals(PAGE_FAVORITES)) {
+                    updateMovieDataAndNotifyAdapter(mFavoriteMovies);
+                }
             }
         });
     }
