@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:contentDescription="@string/item_image_content_description"
+        android:contentDescription="@string/main_list_item_image_content_description"
         android:scaleType="centerCrop" />
 
 </FrameLayout>

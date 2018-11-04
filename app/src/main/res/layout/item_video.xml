@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:paddingBottom="@dimen/detail_list_item_padding_vertical"
+    android:paddingLeft="@dimen/detail_list_item_padding_horizontal"
+    android:paddingRight="@dimen/detail_list_item_padding_horizontal"
+    android:paddingTop="@dimen/detail_list_item_padding_vertical">
+
+    <ImageView
+        android:id="@+id/iv_list_item_video_icon"
+        android:layout_width="@dimen/detail_list_item_video_icon_size"
+        android:layout_height="@dimen/detail_list_item_video_icon_size"
+        android:contentDescription="@string/detail_list_item_video_icon_content_description"
+        app:layout_constraintBottom_toTopOf="@id/guideline_list_item_video"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@id/guideline_list_item_video"
+        android:src="@drawable/outline_play_circle_outline_black_48" />
+
+    <TextView
+        android:id="@+id/tv_list_item_video_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/detail_list_item_video_name_left_margin"
+        android:layout_marginStart="@dimen/detail_list_item_video_name_start_margin"
+        android:maxLength="30"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        app:layout_constraintLeft_toRightOf="@id/iv_list_item_video_icon"
+        app:layout_constraintBottom_toBottomOf="@id/guideline_list_item_video"
+        app:layout_constraintTop_toTopOf="@id/guideline_list_item_video"
+        tools:text="@string/detail_list_item_video_name_default_text"/>
+
+    <TextView
+        android:id="@+id/tv_list_item_video_type"
+        android:layout_width="@dimen/detail_list_item_video_type_width"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/guideline_list_item_video"
+        app:layout_constraintTop_toTopOf="@id/guideline_list_item_video"
+        app:fontFamily="sans-serif-light"
+        tools:text="@string/detail_list_item_video_type_default_text"/>
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_list_item_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5"/>
+
+</android.support.constraint.ConstraintLayout>

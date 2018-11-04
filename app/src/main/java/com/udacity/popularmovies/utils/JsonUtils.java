@@ -1,6 +1,11 @@
 package com.udacity.popularmovies.utils;
 
+import com.google.gson.Gson;
 import com.udacity.popularmovies.model.Movie;
+import com.udacity.popularmovies.model.MovieReview;
+import com.udacity.popularmovies.model.MovieReviewsList;
+import com.udacity.popularmovies.model.MovieVideo;
+import com.udacity.popularmovies.model.MovieVideosList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,19 +58,24 @@ public class JsonUtils {
         return movies;
     }
 
-    public static String parseMovieTrailer(String json) throws JSONException {
-
-        List<String> trailerKeys = new ArrayList<String>();
-
-        JSONArray pageJsonArray = new JSONObject(json).getJSONArray(PAGE_RESULTS);
-        int pageLength = Math.min(MAX_NUM_OF_MOVIES_TO_PARSE, pageJsonArray.length());
-        for (int i = 0; i < pageLength; i++) {
-            JSONObject videoJson = pageJsonArray.getJSONObject(i);
-            String key = videoJson.optString(MOVIE_TRAILER_KEY);
-            trailerKeys.add(key);
+    public static List<MovieVideo> parseMovieVideos(String json) {
+        Gson gson = new Gson();
+        MovieVideosList movieVideosList = gson.fromJson(json, MovieVideosList.class);
+        List<MovieVideo> movieVideos = null;
+        if (movieVideosList != null) {
+            movieVideos = movieVideosList.getResults();
         }
+        return movieVideos;
+    }
 
-        return trailerKeys.size() > 0 ? trailerKeys.get(0) : null;
+    public static List<MovieReview> parseMovieReviews(String json) {
+        Gson gson = new Gson();
+        MovieReviewsList movieReviewsList = gson.fromJson(json, MovieReviewsList.class);
+        List<MovieReview> movieReviews = null;
+        if (movieReviewsList != null) {
+            movieReviews = movieReviewsList.getResults();
+        }
+        return movieReviews;
     }
 
 }
