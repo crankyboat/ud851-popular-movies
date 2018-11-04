@@ -16,10 +16,10 @@ public class AppDatabaseUtils {
             movie = new Movie(
                     movieEntry.getId(),
                     movieEntry.getTitle(),
-                    null,
-                    null,
+                    movieEntry.getReleaseDate(),
+                    movieEntry.getPlotSynopsis(),
                     movieEntry.getImageUrl(),
-                    0);
+                    movieEntry.getVoteAverage());
         }
         return movie;
     }
@@ -31,7 +31,10 @@ public class AppDatabaseUtils {
                     movie.getId(),
                     movie.getTitle(),
                     movie.getPosterImageUrl(),
-                    new Date());
+                    new Date(),
+                    movie.getReleaseDate(),
+                    movie.getPlotSynopsis(),
+                    movie.getVoteAverage());
         }
         return movieEntry;
     }

@@ -29,19 +29,13 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements PosterAdapter.ItemViewOnClickListener{
+public class MainActivity extends AppCompatActivity implements ItemViewOnClickListener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String BUNDLE_CURRENT_PAGE = "BUNDLE_CURRENT_PAGE";
     private static final String PAGE_POPULARITY = "page_popularity";
     private static final String PAGE_VOTE_AVG = "page_vote_avg";
     private static final String PAGE_FAVORITES = "page_favorites";
-
-    public static final String ACTION_LOAD_SUCCESS = "load_success";
-    public static final String ACTION_URL_ERROR = "url_error";
-    public static final String ACTION_NETWORK_ERROR = "network_error";
-    public static final String ACTION_JSON_ERROR = "json_error";
-    public static final String ACTION_API_ERROR = "api_error";
 
     private String mCurrentPage;
     private RecyclerView mMoviePostersRecyclerView;
@@ -135,10 +129,8 @@ public class MainActivity extends AppCompatActivity implements PosterAdapter.Ite
 
     @Override
     public void onItemViewClick(int position) {
-        if (!mCurrentPage.equals(PAGE_FAVORITES)) {
-            Intent intent = DetailActivity.getStartIntent(MainActivity.this, mMovies.get(position));
-            startActivity(intent);
-        }
+        Intent intent = DetailActivity.getStartIntent(MainActivity.this, mMovies.get(position));
+        startActivity(intent);
     }
 
     private void setupMovieViewModel() {

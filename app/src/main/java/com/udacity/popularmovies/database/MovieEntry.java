@@ -21,11 +21,23 @@ public class MovieEntry implements Serializable {
     @ColumnInfo(name = "updated_at")
     private Date updatedAt;
 
-    public MovieEntry(int id, String title, String imageUrl, Date updatedAt) {
+    @ColumnInfo(name = "release_date")
+    private String releaseDate;
+
+    @ColumnInfo(name = "plot_synopsis")
+    private String plotSynopsis;
+
+    @ColumnInfo(name = "vote_avg")
+    private double voteAverage;
+
+    public MovieEntry(int id, String title, String imageUrl, Date updatedAt, String releaseDate, String plotSynopsis, double voteAverage) {
         this.id = id;
         this.title = title;
         this.imageUrl = imageUrl;
         this.updatedAt = updatedAt;
+        this.releaseDate = releaseDate;
+        this.plotSynopsis = plotSynopsis;
+        this.voteAverage = voteAverage;
     }
 
     public int getId() {
@@ -60,4 +72,27 @@ public class MovieEntry implements Serializable {
         this.updatedAt = updatedAt;
     }
 
+    public String getReleaseDate() {
+        return releaseDate;
+    }
+
+    public void setReleaseDate(String releaseDate) {
+        this.releaseDate = releaseDate;
+    }
+
+    public String getPlotSynopsis() {
+        return plotSynopsis;
+    }
+
+    public void setPlotSynopsis(String plotSynopsis) {
+        this.plotSynopsis = plotSynopsis;
+    }
+
+    public double getVoteAverage() {
+        return voteAverage;
+    }
+
+    public void setVoteAverage(double voteAverage) {
+        this.voteAverage = voteAverage;
+    }
 }

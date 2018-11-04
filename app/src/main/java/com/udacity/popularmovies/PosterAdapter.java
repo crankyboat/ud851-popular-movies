@@ -44,10 +44,6 @@ public class PosterAdapter extends RecyclerView.Adapter<PosterAdapter.PosterView
         return mMovies.size();
     }
 
-    public interface ItemViewOnClickListener {
-        void onItemViewClick(int position);
-    }
-
     class PosterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private Context mContext;

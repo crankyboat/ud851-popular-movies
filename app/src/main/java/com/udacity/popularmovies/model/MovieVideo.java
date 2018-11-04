@@ -17,6 +17,7 @@ public class MovieVideo {
     private String key;
     private String name;
     private String site;
+    private String type;
 
     public void setId(String id) {
         this.id = id;
@@ -34,6 +35,10 @@ public class MovieVideo {
         this.site = site;
     }
 
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public String getId() {
         return this.id;
     }
@@ -48,5 +53,9 @@ public class MovieVideo {
 
     public String getSite() {
         return this.site;
+    }
+
+    public String getType() {
+        return this.type;
     }
 }

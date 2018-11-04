@@ -10,6 +10,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -22,21 +24,30 @@ import com.udacity.popularmovies.database.AppDatabase;
 import com.udacity.popularmovies.database.AppDatabaseUtils;
 import com.udacity.popularmovies.database.MovieEntry;
 import com.udacity.popularmovies.model.Movie;
+import com.udacity.popularmovies.model.MovieReview;
 import com.udacity.popularmovies.model.MovieVideo;
 import com.udacity.popularmovies.sync.SyncIntentService;
 import com.udacity.popularmovies.sync.SyncTasks;
 import com.udacity.popularmovies.utils.JsonUtils;
 import com.udacity.popularmovies.utils.NetworkUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity implements ItemViewOnClickListener {
 
     private static final String TAG = DetailActivity.class.getSimpleName();
     private static final String EXTRA_MOVIE = "com.udacity.popularmovies.extras.EXTRA_MOVIE";
 
     private Movie mMovie;
+    private List<MovieVideo> mMovieVideos;
+    private List<MovieReview> mMovieReviews;
     private boolean mIsFavorite;
+
+    private RecyclerView mMovieVideosRecyclerView;
+    private VideoAdapter mMovieVideoAdapter;
+    private RecyclerView mMovieReviewsRecyclerView;
+    private ReviewAdapter mMovieReviewAdapter;
 
     private BroadcastReceiver mBroadcastReceiver;
     private IntentFilter mIntentFilter;
@@ -66,6 +77,20 @@ public class DetailActivity extends AppCompatActivity {
             setupDetailViewModel();
             populateViews();
             setTitle(mMovie.getTitle());
+
+            mMovieVideos = new ArrayList<MovieVideo>();
+            LinearLayoutManager videoLayoutManager = new LinearLayoutManager(this);
+            mMovieVideosRecyclerView = (RecyclerView) findViewById(R.id.rv_movie_videos);
+            mMovieVideosRecyclerView.setLayoutManager(videoLayoutManager);
+            mMovieVideoAdapter = new VideoAdapter(mMovieVideos, this);
+            mMovieVideosRecyclerView.setAdapter(mMovieVideoAdapter);
+
+            mMovieReviews = new ArrayList<MovieReview>();
+            LinearLayoutManager reviewLayoutManager = new LinearLayoutManager(this);
+            mMovieReviewsRecyclerView = (RecyclerView) findViewById(R.id.rv_movie_reviews);
+            mMovieReviewsRecyclerView.setLayoutManager(reviewLayoutManager);
+            mMovieReviewAdapter = new ReviewAdapter(mMovieReviews);
+            mMovieReviewsRecyclerView.setAdapter(mMovieReviewAdapter);
 
             mBroadcastReceiver = new QueryResultsBroadcastReceiver();
             mIntentFilter = new IntentFilter();
@@ -166,28 +191,39 @@ public class DetailActivity extends AppCompatActivity {
         startService(reviewsIntent);
     }
 
-    // TODO
-    private void parseAndUpdateButtonClickHandler(String queryResults) {
-
+    private void parseMovieResourcesQueryResults(String queryResults, String action) {
         if (queryResults != null && !queryResults.equals("")) {
-            final List<MovieVideo> movieVideos = JsonUtils.parseMovieVideos(queryResults);
-            final String videoKey = movieVideos.get(0).getKey();
-            if (videoKey != null) {
-                Button button = (Button) findViewById(R.id.button_play_video);
-                button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Uri uri = Uri.parse("https://www.youtube.com/watch?v=" + videoKey);
-                        if (BuildConfig.DEBUG) { Log.d(TAG, "Uri " + uri.toString()); }
-                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                        if (intent.resolveActivity(getPackageManager()) != null) {
-                            startActivity(intent);
-                        }
-                    }
-                });
+            switch (action) {
+                case SyncTasks.ACTION_LOAD_VIDEOS_SUCCESS:
+                    List<MovieVideo> movieVideos = JsonUtils.parseMovieVideos(queryResults);
+                    mMovieVideos.clear();
+                    mMovieVideos.addAll(movieVideos != null ? movieVideos : new ArrayList<MovieVideo>());
+                    mMovieVideoAdapter.notifyDataSetChanged();
+                    break;
+                case SyncTasks.ACTION_LOAD_REVIEWS_SUCCESS:
+                    List<MovieReview> movieReviews = JsonUtils.parseMovieReviews(queryResults);
+                    mMovieReviews.clear();
+                    mMovieReviews.addAll(movieReviews != null ? movieReviews : new ArrayList<MovieReview>());
+                    mMovieReviewAdapter.notifyDataSetChanged();
+                    break;
+                default:
+                    break;
             }
         } else {
+            // TODO
+        }
+    }
 
+    @Override
+    public void onItemViewClick(int position) {
+        final String videoKey = mMovieVideos.get(position).getKey();
+        if (videoKey != null) {
+            Uri uri = Uri.parse("https://www.youtube.com/watch?v=" + videoKey);
+            if (BuildConfig.DEBUG) { Log.d(TAG, "Uri " + uri.toString()); }
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                startActivity(intent);
+            }
         }
     }
 
@@ -201,13 +237,13 @@ public class DetailActivity extends AppCompatActivity {
                 case SyncTasks.ACTION_LOAD_VIDEOS_SUCCESS:
                     if (intent.hasExtra(Intent.EXTRA_TEXT)) {
                         String results = intent.getStringExtra(Intent.EXTRA_TEXT);
-                        parseAndUpdateButtonClickHandler(results);
+                        parseMovieResourcesQueryResults(results, action);
                     }
                     break;
                 case SyncTasks.ACTION_LOAD_REVIEWS_SUCCESS:
                     if (intent.hasExtra(Intent.EXTRA_TEXT)) {
                         String results = intent.getStringExtra(Intent.EXTRA_TEXT);
-                        if (BuildConfig.DEBUG) { Log.d(TAG, results); }
+                        parseMovieResourcesQueryResults(results, action);
                     }
                     break;
                 case SyncTasks.ACTION_URL_ERROR:
